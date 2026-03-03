@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import ProductForm from "./components/ProductForm";
 import ProductList from "./components/ProductList";
 import ProductBtn from "./components/ProductBtn";
@@ -6,15 +6,27 @@ import ProductBtn from "./components/ProductBtn";
 const STORAGE_KEY = "products";
 
 const Dashboard = () => {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState(() => {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  });
   const [editingProduct, setEditingProduct] = useState(null);
   const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
     try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        console.log(raw)
-      if (raw) setProducts(JSON.parse(raw));
+      let raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        const legacy = localStorage.getItem("products");
+        if (legacy) {
+          raw = legacy;
+          localStorage.setItem(STORAGE_KEY, legacy);
+          localStorage.removeItem("products");
+        }
+      }
+      if (raw) {
+        setProducts(JSON.parse(raw));
+      }
     } catch (e) {
       console.warn("Failed to load products from storage", e);
     }
@@ -28,19 +40,30 @@ const Dashboard = () => {
     }
   }, [products]);
 
+  //   Add, Edit, Delete Functions :-
+
   const handleAddClick = () => {
     setEditingProduct(null);
     setShowForm(true);
   };
 
-  const handleSave = (product) => {
-    if (editingProduct) {
-      setProducts((prev) =>
-        prev.map((p) => (p.id === product.id ? product : p)),
-      );
-    } else {
-      setProducts((prev) => [product, ...prev]);
+  const saveProducts = (newProducts) => {
+    setProducts(newProducts);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(newProducts));
+    } catch (e) {
+      console.warn("Failed to save products", e);
     }
+  };
+
+  const handleSave = (product) => {
+    let updated;
+    if (editingProduct) {
+      updated = products.map((p) => (p.id === product.id ? product : p));
+    } else {
+      updated = [product, ...products];
+    }
+    saveProducts(updated);
     setShowForm(false);
     setEditingProduct(null);
   };
@@ -52,11 +75,12 @@ const Dashboard = () => {
 
   const handleDelete = (id) => {
     if (!window.confirm("Delete this product?")) return;
-    setProducts((prev) => prev.filter((p) => p.id !== id));
+    const updated = products.filter((p) => p.id !== id);
+    saveProducts(updated);
   };
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen" >
+    <div className="p-6 bg-gray-100 min-h-screen">
       <h1 className="text-2xl font-bold mb-4">Welcome Admin Dashboard</h1>
 
       <div className="mb-4">
