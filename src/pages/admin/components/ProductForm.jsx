@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import ProductBtn from "./ProductBtn";
+import { toast } from "sonner";
 
 const blank = {
   id: "",
@@ -41,6 +42,9 @@ const ProductForm = ({ initialProduct = null, onSave, onCancel }) => {
     if (!form.category) err.category = "Category is required";
     if (!form.imageURL) err.imageURL = "Image URL must be provided";
     setErrors(err);
+    if (Object.keys(err).length > 0) {
+      toast.error("Please fix form errors");
+    }
     return Object.keys(err).length === 0;
   };
 
@@ -114,6 +118,7 @@ const ProductForm = ({ initialProduct = null, onSave, onCancel }) => {
           <option value="Men">Men</option>
           <option value="Women">Women</option>
           <option value="Kids">Kids</option>
+          <option value="Electronics">Electronics</option>
           <option value="Accessories">Accessories</option>
         </select>
         {errors.category && (

@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import ProductForm from "./components/ProductForm";
 import ProductList from "./components/ProductList";
 import ProductBtn from "./components/ProductBtn";
+import { toast } from "sonner";
 
-const STORAGE_KEY = "products";
+const STORAGE_KEY = import.meta.env.STORAGE_KEY || "products";
 
 const Dashboard = () => {
   const [products, setProducts] = useState(() => {
@@ -58,7 +59,8 @@ const Dashboard = () => {
 
   const handleSave = (product) => {
     let updated;
-    if (editingProduct) {
+    const isEdit = Boolean(editingProduct);
+    if (isEdit) {
       updated = products.map((p) => (p.id === product.id ? product : p));
     } else {
       updated = [product, ...products];
@@ -66,6 +68,7 @@ const Dashboard = () => {
     saveProducts(updated);
     setShowForm(false);
     setEditingProduct(null);
+    toast.success(isEdit ? "Product updated" : "Product added");
   };
 
   const handleEdit = (product) => {
@@ -77,6 +80,7 @@ const Dashboard = () => {
     if (!window.confirm("Delete this product?")) return;
     const updated = products.filter((p) => p.id !== id);
     saveProducts(updated);
+    toast.success("Product deleted");
   };
 
   return (

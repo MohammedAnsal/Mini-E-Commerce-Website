@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Cart from "./components/Cart";
+import { toast } from "sonner";
 
 const STORAGE_KEY = import.meta.env.STORAGE_KEY || "products";
 const CART_KEY = import.meta.env.CART_KEY || "cart";
@@ -55,11 +56,14 @@ const Home = () => {
     saveCart((prev) => {
       const found = prev.find((it) => it.productId === product.id);
       if (found) {
-        // item already present, do nothing
+        toast.error("Product already in cart", { id: `already-${product.id}` });
         return prev;
       }
       const stock = parseInt(product.stock || "0", 10);
-      if (stock && stock <= 0) return prev; // out of stock
+      if (stock && stock <= 0) {
+        toast.error("Product out of stock", { id: `out-${product.id}` });
+        return prev;
+      }
       const item = {
         id: String(Date.now()) + Math.random().toString(36).slice(2, 7),
         productId: product.id,
@@ -68,6 +72,7 @@ const Home = () => {
         quantity: 1,
         imageURL: product.imageURL || "",
       };
+      toast.success("Added to cart", { id: `added-${product.id}` });
       return [item, ...prev];
     });
     setShowCart(true);
@@ -81,7 +86,10 @@ const Home = () => {
         if (it.id !== id) return it;
         const product = products.find((p) => p.id === it.productId);
         const stock = parseInt(product?.stock || "0", 10);
-        if (stock && it.quantity >= stock) return it;
+        if (stock && it.quantity >= stock) {
+          toast.error("Reached max stock", { id: `max-${id}` });
+          return it;
+        }
         return { ...it, quantity: it.quantity + 1 };
       }),
     );
@@ -91,7 +99,13 @@ const Home = () => {
     saveCart((prev) =>
       prev
         .map((it) => (it.id === id ? { ...it, quantity: it.quantity - 1 } : it))
-        .filter((it) => it.quantity > 0),
+        .filter((it) => {
+          if (it.id === id && it.quantity <= 0) {
+            toast.success("Item removed from cart", { id: `removed-${id}` });
+            return false;
+          }
+          return it.quantity > 0;
+        }),
     );
   };
 
@@ -99,6 +113,7 @@ const Home = () => {
 
   const remove = (id) => {
     saveCart((prev) => prev.filter((it) => it.id !== id));
+    toast.success("Item removed from cart", { id: `removed-${id}` });
   };
 
   //   Products based on search and category :-
