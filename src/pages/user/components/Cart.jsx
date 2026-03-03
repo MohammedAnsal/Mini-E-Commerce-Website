@@ -10,7 +10,7 @@ const Cart = ({ items = [], products = [], onInc, onDec, onRemove, onClose }) =>
     <div className="fixed right-0 top-0 w-full sm:right-4 sm:top-16 sm:w-96 max-h-[80vh] bg-white shadow-lg rounded overflow-hidden flex flex-col z-50">
       <div className="p-3 border-b flex items-center justify-between">
         <div className="font-semibold">
-          Cart ({items.reduce((s, it) => s + it.quantity, 0)})
+          Cart ({items.length})
         </div>
         <div className="flex items-center gap-2">
           <button onClick={onClose} className="px-2 py-1 bg-gray-200 rounded">

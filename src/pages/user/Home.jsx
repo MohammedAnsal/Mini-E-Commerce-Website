@@ -54,12 +54,11 @@ const Home = () => {
   const addToCart = (product) => {
     saveCart((prev) => {
       const found = prev.find((it) => it.productId === product.id);
-      const stock = parseInt(product.stock || "0", 10);
       if (found) {
-        // prevent exceeding stock
-        if (stock && found.quantity >= stock) return prev;
-        return prev.map((it) => (it.productId === product.id ? { ...it, quantity: it.quantity + 1 } : it));
+        // item already present, do nothing
+        return prev;
       }
+      const stock = parseInt(product.stock || "0", 10);
       if (stock && stock <= 0) return prev; // out of stock
       const item = {
         id: String(Date.now()) + Math.random().toString(36).slice(2, 7),
@@ -114,7 +113,8 @@ const Home = () => {
     new Set(products.map((p) => p.category).filter(Boolean)),
   );
 
-  const cartCount = cart.reduce((s, it) => s + it.quantity, 0);
+  // number of unique products in cart
+  const cartCount = cart.length;
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
