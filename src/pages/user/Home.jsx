@@ -171,7 +171,7 @@ const Home = () => {
       {filtered.length === 0 ? (
         <div className="text-gray-600">No products found.</div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {filtered.map((p) => {
             const cartItem = cart.find((c) => c.productId === p.id);
             const cartQty = cartItem ? cartItem.quantity : 0;
@@ -179,10 +179,7 @@ const Home = () => {
             const disableAdd = stock && cartQty >= stock;
 
             return (
-            <div
-              key={p.id}
-              className="bg-white rounded shadow p-4 flex flex-col"
-            >
+            <div key={p.id} className="bg-white rounded-lg shadow-sm p-4 flex flex-col hover:shadow-md transition">
               <div className="h-40 mb-3 bg-gray-100 rounded overflow-hidden">
                 <img
                   src={p.imageURL || placeholder}
@@ -192,7 +189,7 @@ const Home = () => {
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-lg">{p.name}</h3>
-                <div className="text-gray-600 mt-1">₹{p.price}</div>
+                <div className="text-indigo-600 font-bold text-lg mt-1">₹{p.price}</div>
                 <div className="text-sm text-gray-500 mt-1">
                   Category: {p.category || "-"}
                 </div>
